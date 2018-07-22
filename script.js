@@ -1,7 +1,10 @@
+let learningRate = 0.01;
 let range = 5;
 let recipe = [3, 4, 4, 7];
 let activations = activationsMatrix(recipe);
+let errors = copyArray(activations).slice(1);
 let weights = weightsMatrix(recipe);
+let deltaWeights = resetArray(copyArray(weights));
 let bias = biasMatrix(recipe);
 let data = [
   [-4, -9, 10],
@@ -17,8 +20,8 @@ let answers = [0, 1, 1, 2, 3, 4, 5, 6, 6];
 
 
 
-function run(data){
-  //PLUG IN THE INPUT VALUES------------------------------
+function run(data, answer){
+  //Plug in the input values------------------------------
   for (let i = 0; i < activations[0].length; i++){
     activations[0][i] = data[i];
   }
@@ -31,6 +34,23 @@ function run(data){
     }
   }
 
+  //Calculate errors for the entire network---------------
+  //activations has an item more at the beginning---------
+  for (let i = 0; i < errors[errors.length - 1].length; i++){
+    errors[errors.length - 1][i] = ((answer == i ? 1 : 0)
+    - activations[errors.length][i]);
+  }
+
+
+for (let i = 0; i < deltaWeights[deltaWeights.length -1].length; i++){
+  for (let j = 0; j < deltaWeights[deltaWeights.length - 1][i].length; j++){
+    deltaWeights[deltaWeights.length - 1][i][j] = errors[errors.length - 1][i]
+    * activations[errors.length - 1][j] * learningRate;
+    console.log(deltaWeights[deltaWeights.length - 1][i][j].toFixed(40));
+  }
+}
+
+
 }
 
 function getArraySum(a){
@@ -39,6 +59,22 @@ function getArraySum(a){
     sum += a[i];
   }
   return sum;
+}
+
+function resetArray(a){
+  let result = [];
+  for (let i = 0; i < a.length; i++){
+    result.push(a[i].constructor === Array ? resetArray(a[i]) : 0);
+  }
+  return result;
+}
+
+function copyArray(a){
+  let copy = [];
+  for (let i = 0; i < a.length; i++){
+    copy.push((a[i].constructor === Array) ? copyArray(a[i]) : a[i]);
+  }
+  return copy;
 }
 
 function multiplyMatrixByVector(matrix, vector){
@@ -69,6 +105,7 @@ function biasMatrix(recipe) {
   }
   return bias;
 }
+
 
 
 function activationsMatrix(recipe){
